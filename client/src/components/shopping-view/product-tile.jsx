@@ -5,8 +5,7 @@ import { Badge } from "../ui/badge";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getReviews } from "@/store/shop/review-slice";
-import StarRatingComponent from "../common/star-rating";
+// reviews removed from product tile
 import { Minus, Plus, Heart, ShoppingCart } from "lucide-react";
 import { updateCartQuantity, deleteCartItem } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
@@ -18,13 +17,13 @@ function ShoppingProductTile({
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { reviews } = useSelector((state) => state.shopReview);
+  // reviews removed from product tile
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
   const { productList } = useSelector((state) => state.shopProducts);
   const { toast } = useToast();
   
-  const [productReviews, setProductReviews] = useState([]);
+  
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [cartQuantity, setCartQuantity] = useState(0);
@@ -76,15 +75,7 @@ function ShoppingProductTile({
     (item) => item.productId === product?._id
   );
 
-  useEffect(() => {
-    if (product?._id) {
-      dispatch(getReviews(product?._id)).then((data) => {
-        if (data?.payload?.data) {
-          setProductReviews(data.payload.data);
-        }
-      });
-    }
-  }, [product?._id, dispatch]);
+  // review fetching removed
 
   useEffect(() => {
     if (cartItem) {
@@ -94,11 +85,7 @@ function ShoppingProductTile({
     }
   }, [cartItem]);
 
-  const averageReview =
-    productReviews && productReviews.length > 0
-      ? productReviews.reduce((sum, reviewItem) => sum + reviewItem.reviewValue, 0) /
-        productReviews.length
-      : 0;
+  
 
   const handleQuantityChange = (action) => {
     const getCurrentProductIndex = productList?.findIndex(
@@ -252,40 +239,7 @@ function ShoppingProductTile({
               </div>
             </div>
             
-            {/* Review Section */}
-            <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-              <div className="flex items-center gap-1">
-                <StarRatingComponent rating={averageReview} />
-                <span className="text-sm font-medium text-gray-700">
-                  {averageReview.toFixed(1)}
-                </span>
-              </div>
-              <span className="text-sm text-gray-500">
-                ({productReviews.length})
-              </span>
-            </div>
-            
-            {/* Recent Review Preview */}
-            {productReviews.length > 0 && (
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <div className="text-sm">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-gray-700 text-xs">
-                      {productReviews[0]?.userName}
-                    </span>
-                    <StarRatingComponent rating={productReviews[0]?.reviewValue} />
-                  </div>
-                  <p className="text-gray-600 text-xs line-clamp-2">
-                    "{productReviews[0]?.reviewMessage}"
-                  </p>
-                </div>
-                {productReviews.length > 1 && (
-                  <p className="text-xs text-blue-600 mt-2 font-medium">
-                    +{productReviews.length - 1} more reviews
-                  </p>
-                )}
-              </div>
-            )}
+            {/* Reviews removed from product card */}
           </div>
         </CardContent>
       </div>
