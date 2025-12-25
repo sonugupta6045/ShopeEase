@@ -30,6 +30,47 @@ function ShoppingProductTile({
   const [cartQuantity, setCartQuantity] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
+  // initialize wishlist state from localStorage
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("wishlistItems") || "[]");
+      const exists = stored.find((item) => item.productId === product?._id);
+      setIsWishlisted(Boolean(exists));
+    } catch (err) {
+      setIsWishlisted(false);
+    }
+  }, [product?._id]);
+
+  // keep wishlisted state in sync when wishlist is changed elsewhere (header or other tabs)
+  useEffect(() => {
+    const handler = (e) => {
+      try {
+        const stored = e?.detail?.items ?? JSON.parse(localStorage.getItem("wishlistItems") || "[]");
+        const exists = stored.find((item) => item.productId === product?._id);
+        setIsWishlisted(Boolean(exists));
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    const storageHandler = (e) => {
+      if (e.key !== "wishlistItems") return;
+      try {
+        const stored = JSON.parse(e.newValue || "[]");
+        const exists = stored.find((item) => item.productId === product?._id);
+        setIsWishlisted(Boolean(exists));
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    window.addEventListener("wishlistUpdated", handler);
+    window.addEventListener("storage", storageHandler);
+    return () => {
+      window.removeEventListener("wishlistUpdated", handler);
+      window.removeEventListener("storage", storageHandler);
+    };
+  }, [product?._id]);
   // Check if product is in cart
   const cartItem = cartItems?.items?.find(
     (item) => item.productId === product?._id
@@ -148,10 +189,32 @@ function ShoppingProductTile({
             className="absolute top-3 right-3 h-8 w-8 rounded-full bg-white/80 hover:bg-white transition-all duration-200"
             onClick={(e) => {
               e.stopPropagation();
-              setIsWishlisted(!isWishlisted);
+              // toggle wishlist in localStorage and notify header
+              try {
+                const stored = JSON.parse(localStorage.getItem("wishlistItems") || "[]");
+                let updated = [];
+                if (isWishlisted) {
+                  updated = stored.filter((item) => item.productId !== product?._id);
+                  setIsWishlisted(false);
+                } else {
+                  const item = {
+                    productId: product?._id,
+                    title: product?.title,
+                    price: product?.price,
+                    salePrice: product?.salePrice,
+                    image: product?.images && product?.images.length > 0 ? product.images[0] : "/placeholder.png",
+                  };
+                  updated = [...stored, item];
+                  setIsWishlisted(true);
+                }
+                localStorage.setItem("wishlistItems", JSON.stringify(updated));
+                window.dispatchEvent(new CustomEvent("wishlistUpdated", { detail: { items: updated } }));
+              } catch (err) {
+                console.error("Wishlist update failed", err);
+              }
             }}
           >
-            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+            <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
           </Button>
         </div>
         

@@ -1,4 +1,4 @@
-import { HousePlug, LogOut, Menu, ShoppingCart, UserCog } from "lucide-react";
+import { HousePlug, LogOut, Menu, ShoppingCart, UserCog, Heart, Trash2 } from "lucide-react";
 import {
   Link,
   useLocation,
@@ -67,6 +67,8 @@ function MenuItems() {
 function HeaderRightContent() {
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
+  const [openWishlistSheet, setOpenWishlistSheet] = useState(false);
+  const [wishlistItems, setWishlistItems] = useState([]);
   const [openCartSheet, setOpenCartSheet] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -79,10 +81,79 @@ function HeaderRightContent() {
     dispatch(fetchCartItems(user?.id));
   }, [dispatch]);
 
+  // load wishlist from localStorage and subscribe to updates
+  useEffect(() => {
+    const load = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem("wishlistItems") || "[]");
+        setWishlistItems(stored);
+      } catch (err) {
+        setWishlistItems([]);
+      }
+    };
+    load();
+    const handler = (e) => {
+      setWishlistItems(e?.detail?.items ?? JSON.parse(localStorage.getItem("wishlistItems") || "[]"));
+    };
+    window.addEventListener("wishlistUpdated", handler);
+    return () => window.removeEventListener("wishlistUpdated", handler);
+  }, []);
+
   
 
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
+      <Sheet open={openWishlistSheet} onOpenChange={() => setOpenWishlistSheet(false)}>
+        <Button
+          onClick={() => setOpenWishlistSheet(true)}
+          variant="outline"
+          size="icon"
+          className="relative"
+        >
+          <Heart className="w-6 h-6" />
+          <span className="absolute top-[-5px] right-[2px] font-bold text-sm ">
+            {wishlistItems?.length || 0}
+          </span>
+          <span className="sr-only">User wishlist</span>
+        </Button>
+        <div>
+          <SheetContent side="right" className="w-full max-w-xs">
+            <div className="p-4">
+              <h3 className="font-bold mb-3">Wishlist</h3>
+              {wishlistItems && wishlistItems.length > 0 ? (
+                <div className="space-y-3">
+                  {wishlistItems.map((it) => (
+                    <div key={it.productId} className="flex items-start gap-3">
+                      <img src={it.image} alt={it.title} className="w-12 h-12 object-cover rounded flex-shrink-0" />
+                      <div className="flex-1 pr-10">
+                        <div className="text-sm font-medium line-clamp-2 cursor-pointer" onClick={() => { navigate(`/shop/product/${it.productId}`); setOpenWishlistSheet(false); }}>{it.title}</div>
+                        <div className="text-xs text-gray-500">${it.salePrice > 0 ? it.salePrice : it.price}</div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500 hover:text-red-700 self-start"
+                        onClick={() => {
+                          const updated = wishlistItems.filter(x => x.productId !== it.productId);
+                          localStorage.setItem("wishlistItems", JSON.stringify(updated));
+                          setWishlistItems(updated);
+                          window.dispatchEvent(new CustomEvent("wishlistUpdated", { detail: { items: updated } }));
+                        }}
+                        aria-label={`Remove ${it.title} from wishlist`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500">No items in wishlist</div>
+              )}
+            </div>
+          </SheetContent>
+        </div>
+      </Sheet>
+
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
