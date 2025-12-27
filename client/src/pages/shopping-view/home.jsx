@@ -37,15 +37,18 @@ const categoriesWithIcon = [
   { id: "women", label: "Women", icon: CloudLightning },
   { id: "kids", label: "Kids", icon: BabyIcon },
   { id: "accessories", label: "Accessories", icon: WatchIcon },
-  { id: "footwear", label: "Footwear", icon: UmbrellaIcon },
 ];
 
 const brandsWithIcon = [
-  { id: "nike", label: "Nike", icon: Shirt },
-  { id: "adidas", label: "Adidas", icon: WashingMachine },
-  { id: "puma", label: "Puma", icon: ShoppingBasket },
-  { id: "levi", label: "Levi's", icon: Airplay },
+  { id: "raymond", label: "Raymond", icon: Shirt },
+  { id: "fabindia", label: "Fabindia", icon: WashingMachine },
+  { id: "manyavar", label: "Manyavar", icon: ShoppingBasket },
   { id: "zara", label: "Zara", icon: Images },
+  { id: "biba", label: "Biba", icon: Heater },
+  { id: "louis-philippe", label: "Louis Philippe", icon: Airplay },
+  { id: "allen-solly", label: "Allen Solly", icon: UmbrellaIcon },
+  { id: "peter-england", label: "Peter England", icon: WatchIcon },
+  { id: "levi", label: "Levi's", icon: Airplay },
   { id: "h&m", label: "H&M", icon: Heater },
 ];
 function ShoppingHome() {

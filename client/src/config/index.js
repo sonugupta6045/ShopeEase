@@ -62,7 +62,6 @@ export const addProductFormElements = [
       { id: "women", label: "Women" },
       { id: "kids", label: "Kids" },
       { id: "accessories", label: "Accessories" },
-      { id: "footwear", label: "Footwear" },
     ],
   },
   {
@@ -70,9 +69,9 @@ export const addProductFormElements = [
     name: "brand",
     componentType: "select",
     options: [
-      { id: "nike", label: "Nike" },
-      { id: "adidas", label: "Adidas" },
-      { id: "puma", label: "Puma" },
+      { id: "raymond", label: "Raymond" },
+      { id: "fabindia", label: "Fabindia" },
+      { id: "manyavar", label: "Manyavar" },
       { id: "levi", label: "Levi's" },
       { id: "zara", label: "Zara" },
       { id: "h&m", label: "H&M" },
@@ -140,11 +139,6 @@ export const shoppingViewHeaderMenuItems = [
     path: "/shop/listing",
   },
   {
-    id: "footwear",
-    label: "Footwear",
-    path: "/shop/listing",
-  },
-  {
     id: "accessories",
     label: "Accessories",
     path: "/shop/listing",
@@ -161,15 +155,18 @@ export const categoryOptionsMap = {
   women: "Women",
   kids: "Kids",
   accessories: "Accessories",
-  footwear: "Footwear",
 };
 
 export const brandOptionsMap = {
-  nike: "Nike",
-  adidas: "Adidas",
-  puma: "Puma",
-  levi: "Levi",
+  raymond: "Raymond",
+  fabindia: "Fabindia",
+  manyavar: "Manyavar",
   zara: "Zara",
+  biba: "Biba",
+  "louis-philippe": "Louis Philippe",
+  "allen-solly": "Allen Solly",
+  "peter-england": "Peter England",
+  levi: "Levi",
   "h&m": "H&M",
 };
 
@@ -179,14 +176,17 @@ export const filterOptions = {
     { id: "women", label: "Women" },
     { id: "kids", label: "Kids" },
     { id: "accessories", label: "Accessories" },
-    { id: "footwear", label: "Footwear" },
   ],
   brand: [
-    { id: "nike", label: "Nike" },
-    { id: "adidas", label: "Adidas" },
-    { id: "puma", label: "Puma" },
-    { id: "levi", label: "Levi's" },
+    { id: "raymond", label: "Raymond" },
+    { id: "fabindia", label: "Fabindia" },
+    { id: "manyavar", label: "Manyavar" },
     { id: "zara", label: "Zara" },
+    { id: "biba", label: "Biba" },
+    { id: "louis-philippe", label: "Louis Philippe" },
+    { id: "allen-solly", label: "Allen Solly" },
+    { id: "peter-england", label: "Peter England" },
+    { id: "levi", label: "Levi's" },
     { id: "h&m", label: "H&M" },
   ],
 };

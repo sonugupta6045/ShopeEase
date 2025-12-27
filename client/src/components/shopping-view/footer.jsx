@@ -108,14 +108,6 @@ function Footer() {
                   Accessories
                 </button>
               </li>
-              <li>
-                <button
-                  onClick={() => handleNavigateToListingPage("footwear", "category")}
-                  className="text-sm hover:text-white transition-colors text-left"
-                >
-                  Footwear
-                </button>
-              </li>
             </ul>
           </div>
 
