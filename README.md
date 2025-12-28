@@ -1,6 +1,6 @@
 # MERN Admin Dashboard
 
-A comprehensive, full-stack E-commerce Admin Dashboard built with the MERN stack. This application empowers administrators to manage products, users, and orders while providing real-time analytics and visual data insights.
+A comprehensive, full-stack E-commerce Website built with the MERN stack. This application empowers administrators to manage products, users, and orders while providing real-time analytics and visual data insights.
 
 ## 🚀 Features
 
