@@ -1,22 +1,27 @@
 import { StarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "../ui/dialog";
 import { Separator } from "../ui/separator";
-import { Input } from "../ui/input";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems, updateCartQuantity, deleteCartItem } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
 import { setProductDetails } from "@/store/shop/products-slice";
 import { Label } from "../ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../ui/select";
 import StarRatingComponent from "../common/star-rating";
 import { useEffect, useState } from "react";
-import { addReview, getReviews } from "@/store/shop/review-slice";
+import { getReviews } from "@/store/shop/review-slice";
 
 function ProductDetailsDialog({ open, setOpen, productDetails }) {
-  const [reviewMsg, setReviewMsg] = useState("");
-  const [rating, setRating] = useState(0);
+  // review input removed per request
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,6 +31,8 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   const { orderList } = useSelector((state) => state.shopOrder) || {};
   const { toast } = useToast();
   const [cartQuantity, setCartQuantity] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("");
+  const STANDARD_SIZES = ["S", "M", "L", "XL", "XXL", "XXXL"];
 
   // Check if user has purchased this product
   const hasUserPurchasedProduct = () => {
@@ -39,8 +46,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   };
 
   function handleRatingChange(getRating) {
-    console.log(getRating, "getRating");
-    setRating(getRating);
+    // write review removed; not used
   }
 
   function handlePrevImage() {
@@ -59,9 +65,10 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
     let getCartItems = cartItems.items || [];
 
     if (getCartItems.length) {
-      const indexOfCurrentItem = getCartItems.findIndex(
-        (item) => item.productId === getCurrentProductId
-      );
+      const indexOfCurrentItem = getCartItems.findIndex((item) => {
+        if (selectedSize) return item.productId === getCurrentProductId && item.size === selectedSize;
+        return item.productId === getCurrentProductId && !item.size;
+      });
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
         if (getQuantity + 1 > getTotalStock) {
@@ -74,11 +81,17 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         }
       }
     }
+    if (STANDARD_SIZES.length > 0 && !selectedSize) {
+      toast({ title: "Please select a size", variant: "destructive" });
+      return Promise.resolve({ payload: { success: false } });
+    }
+
     return dispatch(
       addToCart({
         userId: user?.id,
         productId: getCurrentProductId,
         quantity: 1,
+        size: selectedSize || null,
       })
     ).then((data) => {
       if (data?.payload?.success) {
@@ -143,31 +156,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   function handleDialogClose() {
     setOpen(false);
     dispatch(setProductDetails());
-    setRating(0);
-    setReviewMsg("");
+    // cleared review state removed
     setCurrentImageIndex(0);
   }
 
-  function handleAddReview() {
-    dispatch(
-      addReview({
-        productId: productDetails?._id,
-        userId: user?.id,
-        userName: user?.userName,
-        reviewMessage: reviewMsg,
-        reviewValue: rating,
-      })
-    ).then((data) => {
-      if (data.payload.success) {
-        setRating(0);
-        setReviewMsg("");
-        dispatch(getReviews(productDetails?._id));
-        toast({
-          title: "Review added successfully!",
-        });
-      }
-    });
-  }
+  // review submission removed
 
   useEffect(() => {
     if (productDetails !== null) {
@@ -177,10 +170,14 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
   }, [productDetails, dispatch]);
 
   useEffect(() => {
-    const item = cartItems?.items?.find((i) => i.productId === productDetails?._id);
+    const item = cartItems?.items?.find((i) => {
+      if (!productDetails) return false;
+      if (selectedSize) return i.productId === productDetails?._id && i.size === selectedSize;
+      return i.productId === productDetails?._id && !i.size;
+    });
     if (item) setCartQuantity(item.quantity);
     else setCartQuantity(0);
-  }, [cartItems, productDetails]);
+  }, [cartItems, productDetails, selectedSize]);
 
   console.log(reviews, "reviews");
 
@@ -190,19 +187,20 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         reviews.length
       : 0;
 
+  // use the standard size list so user can choose any size
+  const sizesList = STANDARD_SIZES;
+
   const images = productDetails?.images || [];
   const currentImage = images.length > 0 ? images[currentImageIndex] : "/placeholder.png";
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw]">
-        <div className="relative overflow-hidden rounded-lg">
+        <div className="relative rounded-lg flex items-center justify-center bg-white">
           <img
             src={currentImage}
             alt={productDetails?.title}
-            width={600}
-            height={600}
-            className="aspect-square w-full object-cover"
+            className="max-h-[70vh] w-auto object-contain"
           />
           {images.length > 1 && (
             <>
@@ -234,11 +232,11 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
         </div>
         <div className="">
           <div>
-            <h1 className="text-3xl font-extrabold">{productDetails?.title}</h1>
-            <p className="text-muted-foreground text-2xl mb-5 mt-4">
-              {productDetails?.description}
-            </p>
-          </div>
+              <DialogTitle className="text-3xl font-extrabold">{productDetails?.title}</DialogTitle>
+              <DialogDescription className="text-muted-foreground text-2xl mb-5 mt-4">
+                {productDetails?.description}
+              </DialogDescription>
+            </div>
           <div className="flex items-center justify-between">
             <p
               className={`text-3xl font-bold text-primary ${
@@ -253,15 +251,28 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
               </p>
             ) : null}
           </div>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex items-center gap-0.5">
-              <StarRatingComponent rating={averageReview} />
-            </div>
-            <span className="text-muted-foreground">
-              ({averageReview.toFixed(2)})
-            </span>
-          </div>
+          {/* star rating removed per request */}
           <div className="mt-5 mb-5">
+            {sizesList && sizesList.length > 0 && (
+              <div className="mb-4">
+                <Label>Size</Label>
+                <Select
+                  value={selectedSize}
+                  onValueChange={(val) => setSelectedSize(val)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sizesList.map((sz) => (
+                      <SelectItem key={sz} value={sz}>
+                        {sz}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {productDetails?.totalStock === 0 ? (
               <Button className="w-full opacity-60 cursor-not-allowed">
                 Out of Stock
@@ -312,8 +323,8 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
             <h2 className="text-xl font-bold mb-4">Reviews</h2>
             <div className="grid gap-6">
               {reviews && reviews.length > 0 ? (
-                reviews.map((reviewItem) => (
-                  <div className="flex gap-4">
+                reviews.map((reviewItem, idx) => (
+                  <div key={reviewItem?._id || idx} className="flex gap-4">
                     <Avatar className="w-10 h-10 border">
                       <AvatarFallback>
                         {reviewItem?.userName[0].toUpperCase()}
@@ -334,37 +345,6 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) {
                 ))
               ) : (
                 <h1>No Reviews</h1>
-              )}
-            </div>
-            <div className="mt-10 flex-col flex gap-2">
-              <Label>Write a review</Label>
-              {!hasUserPurchasedProduct() ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <p className="text-sm text-yellow-800">
-                    You can only write a review if you have purchased this product.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="flex gap-1">
-                    <StarRatingComponent
-                      rating={rating}
-                      handleRatingChange={handleRatingChange}
-                    />
-                  </div>
-                  <Input
-                    name="reviewMsg"
-                    value={reviewMsg}
-                    onChange={(event) => setReviewMsg(event.target.value)}
-                    placeholder="Write a review..."
-                  />
-                  <Button
-                    onClick={handleAddReview}
-                    disabled={reviewMsg.trim() === ""}
-                  >
-                    Submit
-                  </Button>
-                </>
               )}
             </div>
           </div>

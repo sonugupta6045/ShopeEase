@@ -99,16 +99,17 @@ export const addProductFormElements = [
     placeholder: "Enter total stock",
   },
   {
-    label: "Sizes (comma separated)",
+    label: "Size",
     name: "sizes",
-    componentType: "textarea",
-    placeholder: "Enter sizes separated by commas (e.g., XS,S,M,L,XL,XXL or 6,7,8,9,10,11,12)",
-  },
-  {
-    label: "Colors (comma separated)",
-    name: "colors",
-    componentType: "textarea",
-    placeholder: "Enter colors separated by commas (e.g., Red,Blue,Green,Black,White)",
+    componentType: "select",
+    options: [
+      { id: "S", label: "S" },
+      { id: "M", label: "M" },
+      { id: "L", label: "L" },
+      { id: "XL", label: "XL" },
+      { id: "XXL", label: "XXL" },
+      { id: "XXXL", label: "XXXL" },
+    ],
   },
 ];
 

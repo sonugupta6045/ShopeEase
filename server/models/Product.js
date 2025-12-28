@@ -12,7 +12,6 @@ const ProductSchema = new mongoose.Schema(
     totalStock: Number,
     averageReview: Number,
     sizes: [String],
-    colors: [String],
   },
   { timestamps: true }
 );

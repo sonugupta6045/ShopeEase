@@ -32,6 +32,16 @@ function ShoppingCheckout() {
         )
       : 0;
 
+  // Tax and handling configuration
+  const GST_RATE = 0.18; // 18% GST
+  const HANDLING_FEE = 10; // flat handling fee (currency units)
+
+  const gstAmount = Number((totalCartAmount * GST_RATE).toFixed(2));
+  const handlingAmount = cartItems && cartItems.items && cartItems.items.length > 0 ? HANDLING_FEE : 0;
+  const deliveryAmount = 0; // existing delivery calculation or flat value if available
+  const orderSubtotal = Number(totalCartAmount.toFixed(2));
+  const orderTotal = Number((orderSubtotal + gstAmount + handlingAmount + deliveryAmount).toFixed(2));
+
   function handleInitiatePaypalPayment() {
     if (cartItems.length === 0) {
       toast({
@@ -107,14 +117,33 @@ function ShoppingCheckout() {
         />
         <div className="flex flex-col gap-4">
           {cartItems && cartItems.items && cartItems.items.length > 0
-            ? cartItems.items.map((item) => (
-                <UserCartItemsContent cartItem={item} />
+            ? cartItems.items.map((item, idx) => (
+                <UserCartItemsContent
+                  key={item?._id || `${item?.productId}-${item?.size || "nosize"}-${idx}`}
+                  cartItem={item}
+                />
               ))
             : null}
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 space-y-4 bg-white p-4 rounded shadow-sm">
             <div className="flex justify-between">
-              <span className="font-bold">Total</span>
-              <span className="font-bold">${totalCartAmount}</span>
+              <span>Items:</span>
+              <span className="font-medium">${orderSubtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>GST ({Math.round(GST_RATE * 100)}%):</span>
+              <span className="font-medium">${gstAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Handling:</span>
+              <span className="font-medium">${handlingAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Delivery:</span>
+              <span className="font-medium">${deliveryAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between pt-4 border-t">
+              <span className="font-bold text-lg">Order Total:</span>
+              <span className="font-bold text-lg">${orderTotal.toFixed(2)}</span>
             </div>
           </div>
           <div className="mt-4 w-full">

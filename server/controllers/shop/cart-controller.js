@@ -3,7 +3,7 @@ const Product = require("../../models/Product");
 
 const addToCart = async (req, res) => {
   try {
-    const { userId, productId, quantity } = req.body;
+    const { userId, productId, quantity, size } = req.body;
 
     if (!userId || !productId || quantity <= 0) {
       return res.status(400).json({
@@ -27,12 +27,13 @@ const addToCart = async (req, res) => {
       cart = new Cart({ userId, items: [] });
     }
 
-    const findCurrentProductIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
-    );
+    const findCurrentProductIndex = cart.items.findIndex((item) => {
+      if (!size) return item.productId.toString() === productId && !item.size;
+      return item.productId.toString() === productId && item.size === size;
+    });
 
     if (findCurrentProductIndex === -1) {
-      cart.items.push({ productId, quantity });
+      cart.items.push({ productId, quantity, size });
     } else {
       cart.items[findCurrentProductIndex].quantity += quantity;
     }
@@ -90,6 +91,7 @@ const fetchCartItems = async (req, res) => {
       price: item.productId.price,
       salePrice: item.productId.salePrice,
       quantity: item.quantity,
+      size: item.size || null,
     }));
 
     res.status(200).json({
@@ -153,6 +155,7 @@ const updateCartItemQty = async (req, res) => {
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
       quantity: item.quantity,
+      size: item.size || null,
     }));
 
     res.status(200).json({
@@ -211,6 +214,7 @@ const deleteCartItem = async (req, res) => {
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
       quantity: item.quantity,
+      size: item.size || null,
     }));
 
     res.status(200).json({

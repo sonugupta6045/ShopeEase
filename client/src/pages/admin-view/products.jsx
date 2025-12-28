@@ -28,6 +28,7 @@ const initialFormData = {
   price: "",
   salePrice: "",
   totalStock: "",
+  sizes: "",
   averageReview: 0,
 };
 
@@ -51,7 +52,11 @@ function AdminProducts() {
       ? dispatch(
           editProduct({
             id: currentEditedId,
-            formData,
+            formData: {
+              ...formData,
+              images: uploadedImageUrls.length ? uploadedImageUrls : formData.images,
+              sizes: formData.sizes ? [formData.sizes] : [],
+            },
           })
         ).then((data) => {
           console.log(data, "edit");
@@ -69,8 +74,7 @@ function AdminProducts() {
           addNewProduct({
             ...formData,
             images: uploadedImageUrls,
-            sizes: formData.sizes ? formData.sizes.split(",").map(s => s.trim()).filter(s => s) : [],
-            colors: formData.colors ? formData.colors.split(",").map(c => c.trim()).filter(c => c) : [],
+            sizes: formData.sizes ? [formData.sizes] : [],
           })
         ).then((data) => {
           if (data?.payload?.success) {
@@ -118,6 +122,7 @@ function AdminProducts() {
         {productList && productList.length > 0
           ? productList.map((productItem) => (
               <AdminProductTile
+                key={productItem?._id}
                 setFormData={setFormData}
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog}
                 setCurrentEditedId={setCurrentEditedId}

@@ -38,7 +38,10 @@ function AdminProductTile({
             onClick={() => {
               setOpenCreateProductsDialog(true);
               setCurrentEditedId(product?._id);
-              setFormData(product);
+              setFormData({
+                ...product,
+                sizes: product?.sizes && product.sizes.length > 0 ? product.sizes[0] : "",
+              });
             }}
           >
             Edit
